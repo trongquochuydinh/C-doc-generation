@@ -54,24 +54,24 @@ void generate_postscript(const char *outfile, const char *func, double x_min, do
     double x_offset = 250 - (x_range * x_scale) / 2;
     double y_offset = 250 - (y_range * y_scale) / 2;
 
-    // Draw grid lines
+    /* Draw grid lines */
     fprintf(ps_file, "newpath\n");
-    fprintf(ps_file, "0.8 0.8 0.8 setrgbcolor\n");  // Light gray for grid lines
+    fprintf(ps_file, "0.8 0.8 0.8 setrgbcolor\n");  /* Light gray for grid lines */
 
     int i;
     for (i = 100; i <= 400; i += 30) {
-        // Vertical grid lines
+        /* Vertical grid lines */
         fprintf(ps_file, "%d 100 moveto\n", i);
         fprintf(ps_file, "%d 400 lineto\n", i);
         fprintf(ps_file, "stroke\n");
 
-        // Horizontal grid lines
+        /* Horizontal grid lines */
         fprintf(ps_file, "100 %d moveto\n", i);
         fprintf(ps_file, "400 %d lineto\n", i);
         fprintf(ps_file, "stroke\n");
     }
 
-    // Draw graph
+    /* Draw graph */
     fprintf(ps_file, "newpath\n");
     fprintf(ps_file, "1 0 0 setrgbcolor\n");
     int start_new_line = 1;
@@ -96,7 +96,7 @@ void generate_postscript(const char *outfile, const char *func, double x_min, do
     }
     fprintf(ps_file, "stroke\n");
 
-    // Draw bounding box and axis labels
+    /* Draw bounding box and axis labels */
     fprintf(ps_file, "newpath\n");
     fprintf(ps_file, "0 0 0 setrgbcolor\n");
     fprintf(ps_file, "100 100 moveto\n");

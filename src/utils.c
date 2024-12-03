@@ -10,6 +10,6 @@ void remove_whitespace(char* dest, const char* src) {
         }
         src++;
     }
-    *dest = '\0';  // Null-terminate the destination string
+    *dest = '\0';
 }
 

@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -Wextra -g -ansi
 SRCDIR=src
 BUILDDIR=build
-TARGET=graph
+TARGET=graph.exe
 
 SRC=$(wildcard $(SRCDIR)/*.c)
 OBJ=$(SRC:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
