@@ -4,10 +4,12 @@
 #include <math.h>
 #include "post_script.h"
 #include "parser.h"
+#include "utils.h"
 
 #define PI 3.14159265358979323846
 #define EPSILON 0.001
 #define Y_THRESHOLD 10.0  /* Threshold to skip large y-values for asymptotes */
+#define INFINITY HUGE_VALF
 
 void generate_postscript(const char *outfile, const char *func, double x_min, double x_max, double y_min, double y_max, int calc_x_range, int calc_y_range) {
     FILE *ps_file = fopen(outfile, "w");
@@ -40,7 +42,7 @@ void generate_postscript(const char *outfile, const char *func, double x_min, do
         y_max = -INFINITY;
         for (x = x_min; x <= x_max; x += step) {
             y = evaluate(expression_tree, x);
-            if (!isnan(y)) {
+            if (!is_nan(y)) {
                 if (y < y_min) y_min = y;
                 if (y > y_max) y_max = y;
             }
@@ -77,7 +79,7 @@ void generate_postscript(const char *outfile, const char *func, double x_min, do
     int start_new_line = 1;
     for (x = x_min; x <= x_max; x += step) {
         y = evaluate(expression_tree, x);
-        if (isnan(y)) {
+        if (is_nan(y)) {
             start_new_line = 1;
             continue;
         }

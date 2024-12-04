@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "parser.h"
+#include "utils.h"
 
 #define MAX_VALUE 1e6
 #define TRUE 1
@@ -44,7 +45,7 @@ int validate_expression(const char *expr) {
 
                 /* Count the opening parenthesis for this function */
                 paren_count++;
-                expr++;  // Move past '('
+                expr++;
 
                 /* Parse the function argument and check for 'x' */
                 while (*expr && *expr != ')') {
@@ -113,7 +114,7 @@ Node* parse_number(const char** expr) {
     /* Check if number is hexadecimal (starts with 0x or 0X) */
     if (**expr == '0' && ((*expr)[1] == 'x' || (*expr)[1] == 'X')) {
         char* end;
-        long int value = strtol(*expr, &end, 16);  // Parse as hexadecimal
+        long int value = strtol(*expr, &end, 16);
         *expr = end;
         return create_const_node((double)value);
     }
@@ -251,7 +252,7 @@ Node* create_function_node(const char* function, Node* argument) {
 }
 
 double evaluate(Node* root, double x) {
-    if (!root) return NAN;
+    if (!root) return create_nan();
 
     switch (root->type) {
         case CONST:
@@ -262,25 +263,25 @@ double evaluate(Node* root, double x) {
             double left_val = evaluate(root->left, x);
             double right_val = evaluate(root->right, x);
 
-            if (!isfinite(left_val) || !isfinite(right_val)) return NAN;
+            if (!isfinite(left_val) || !isfinite(right_val)) return create_nan();
 
             switch (root->operator) {
                 case '+': return left_val + right_val;
                 case '-': return left_val - right_val;
                 case '*': return left_val * right_val;
                 case '/': 
-                    if (fabs(right_val) < 1e-10) return NAN;
+                    if (fabs(right_val) < 1e-10) return create_nan();
                     return left_val / right_val;
                 case '^': 
-                    if (left_val < 0 && floor(right_val) != right_val) return NAN;
+                    if (left_val < 0 && floor(right_val) != right_val) return create_nan();
                     double result = pow(left_val, right_val);
-                    return isfinite(result) && fabs(result) < MAX_VALUE ? result : NAN;
+                    return isfinite(result) && fabs(result) < MAX_VALUE ? result : create_nan();
             }
             break;
         }
         case FUNCTION: {
             double arg_val = evaluate(root->left, x);
-            if (!isfinite(arg_val)) return NAN;
+            if (!isfinite(arg_val)) return create_nan();
 
             /* Check longer function names first */
             if (strcmp(root->function, "sinh") == 0) return sinh(arg_val);
@@ -292,13 +293,13 @@ double evaluate(Node* root, double x) {
             if (strcmp(root->function, "sin") == 0) return sin(arg_val);
             if (strcmp(root->function, "cos") == 0) return cos(arg_val);
             if (strcmp(root->function, "tan") == 0) return tan(arg_val);
-            if (strcmp(root->function, "log") == 0) return arg_val > 0 ? log10(arg_val) : NAN;
+            if (strcmp(root->function, "log") == 0) return arg_val > 0 ? log10(arg_val) : create_nan();
             if (strcmp(root->function, "exp") == 0) return exp(arg_val);
-            if (strcmp(root->function, "ln") == 0) return arg_val > 0 ? log(arg_val) : NAN;
+            if (strcmp(root->function, "ln") == 0) return arg_val > 0 ? log(arg_val) : create_nan();
             if (strcmp(root->function, "abs") == 0) return fabs(arg_val);
         }
     }
-    return NAN;
+    return create_nan();
 }
 
 /* Free the nodes in the expression tree */
