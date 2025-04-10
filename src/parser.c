@@ -10,87 +10,36 @@
 #define TRUE 1
 #define FALSE 0
 
+/* 
+ * Validates the mathematical expression, ensuring proper syntax, balanced 
+ * parentheses, and the presence of the variable 'x'.
+ */
 int validate_expression(const char *expr) {
     int variable_found = FALSE;
     int paren_count = 0;
 
     while (*expr) {
-        if (isdigit(*expr) || *expr == '.' || *expr == ' ' || *expr == 'x' || 
-            *expr == '+' || *expr == '-' || *expr == '*' || *expr == '/' || *expr == '^' || *expr == '|') {
+        if (is_valid_character(*expr)) {
             if (*expr == 'x') {
                 variable_found = TRUE;
             }
-        }
-        else if (isalpha(*expr)) {
-            /* Recognize standard functions */
-            if (strncmp(expr, "sin", 3) == 0 || strncmp(expr, "cos", 3) == 0 ||
-                strncmp(expr, "tan", 3) == 0 || strncmp(expr, "ln", 2) == 0 ||
-                strncmp(expr, "log", 3) == 0 || strncmp(expr, "exp", 3) == 0 ||
-                strncmp(expr, "asin", 4) == 0 || strncmp(expr, "acos", 4) == 0 ||
-                strncmp(expr, "atan", 4) == 0 || strncmp(expr, "sinh", 4) == 0 ||
-                strncmp(expr, "cosh", 4) == 0 || strncmp(expr, "tanh", 4) == 0) {
-
-                /* Move past the function name */
-                int func_len = (strncmp(expr, "ln", 2) == 0) ? 2 : (strncmp(expr, "asin", 4) == 0 || 
-                              strncmp(expr, "acos", 4) == 0 || strncmp(expr, "atan", 4) == 0 || 
-                              strncmp(expr, "sinh", 4) == 0 || strncmp(expr, "cosh", 4) == 0 || 
-                              strncmp(expr, "tanh", 4) == 0) ? 4 : 3;
-                expr += func_len;
-
-                /* Check for an opening parenthesis immediately after the function */
-                if (*expr != '(') {
-                    fprintf(stderr, "Error: Function \"%.*s\" must be followed by '('.\n", func_len, expr - func_len);
-                    return FALSE;
-                }
-
-                /* Count the opening parenthesis for this function */
-                paren_count++;
-                expr++;
-
-                /* Parse the function argument and check for 'x' */
-                while (*expr && *expr != ')') {
-                    if (*expr == '(') {
-                        paren_count++;
-                    } else if (*expr == ')') {
-                        paren_count--;
-                    } else if (*expr == 'x') {
-                        variable_found = TRUE;
-                    }
-                    expr++;
-                }
-
-                /* If we reached the end without a closing parenthesis, report an error */
-                if (*expr != ')') {
-                    fprintf(stderr, "Error: Unmatched opening parenthesis in function \"%.*s\".\n", func_len, expr - func_len);
-                    return FALSE;
-                }
-
-                paren_count--;
-            } else {
-                const char *start = expr;
-                while (isalpha(*expr)) {
-                    expr++;
-                }
-                fprintf(stderr, "Error: Invalid function in expression: \"%.*s\" is not recognized.\n", (int)(expr - start), start);
+        } else if (isalpha(*expr)) {
+            if (!handle_function(&expr, &paren_count, &variable_found)) {
                 return FALSE;
             }
-        } else if (*expr == '(') {
-            paren_count++;
-        } else if (*expr == ')') {
-            paren_count--;
-            if (paren_count < 0) {
-                fprintf(stderr, "Error: Unmatched closing parenthesis.\n");
+        } else if (*expr == '(' || *expr == ')') {
+            if (!handle_parentheses(*expr, &paren_count)) {
                 return FALSE;
             }
         } else {
-            fprintf(stderr, "Error: Invalid character '%c' in expression.\n", *expr);
+            report_invalid_character(*expr);
             return FALSE;
         }
         expr++;
     }
 
     if (paren_count != 0) {
-        fprintf(stderr, "Error: Unmatched opening parenthesis.\n");
+        report_unmatched_parenthesis();
         return FALSE;
     }
 
@@ -102,40 +51,143 @@ int validate_expression(const char *expr) {
     return TRUE;
 }
 
-void skip_whitespace(const char** expr) {
+/* 
+ * Checks whether the given character is valid in a mathematical expression.
+ */
+int is_valid_character(char c) {
+    return isdigit(c) || c == '.' || c == ' ' || c == 'x' || 
+           c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '|';
+}
+
+/* 
+ * Parses and validates a mathematical function (e.g., sin, cos, log) in the expression.
+ * Ensures the function is followed by parentheses and checks for nested arguments.
+ */
+int handle_function(const char **expr, int *paren_count, int *variable_found) {
+    const char *start = *expr;
+    const char *functions[] = {"sin", "cos", "tan", "ln", "log", "exp", 
+                               "asin", "acos", "atan", "sinh", "cosh", "tanh", "abs"};
+    int func_len = 0;
+
+    /* Determine the length of the function name */
+    while (isalpha(**expr)) {
+        (*expr)++;
+    }
+    func_len = *expr - start;
+
+    /* Validate function name */
+    int is_valid = FALSE;
+    for (size_t i = 0; i < sizeof(functions) / sizeof(functions[0]); i++) {
+        if (strncmp(start, functions[i], func_len) == 0 && functions[i][func_len] == '\0') {
+            is_valid = TRUE;
+            break;
+        }
+    }
+
+    if (!is_valid) {
+        fprintf(stderr, "Error: Invalid function in expression: \"%.*s\".\n", func_len, start);
+        return FALSE;
+    }
+
+    /* Ensure function is followed by '(' */
+    if (**expr != '(') {
+        fprintf(stderr, "Error: Function \"%.*s\" must be followed by '('.\n", func_len, start);
+        return FALSE;
+    }
+
+    (*expr)++;
+    (*paren_count)++;
+
+    /* Parse function arguments */
+    while (**expr && **expr != ')') {
+        if (**expr == '(') {
+            (*paren_count)++;
+        } else if (**expr == ')') {
+            (*paren_count)--;
+        } else if (**expr == 'x') {
+            *variable_found = TRUE;
+        }
+        (*expr)++;
+    }
+
+    if (**expr != ')') {
+        fprintf(stderr, "Error: Unmatched opening parenthesis in function \"%.*s\".\n", func_len, start);
+        return FALSE;
+    }
+
+    (*paren_count)--; 
+    return TRUE;
+}
+
+/* 
+ * Updates the parenthesis count and checks for unmatched parentheses.
+ */
+int handle_parentheses(char c, int *paren_count) {
+    if (c == '(') {
+        (*paren_count)++;
+    } else if (c == ')') {
+        (*paren_count)--;
+        if (*paren_count < 0) {
+            fprintf(stderr, "Error: Unmatched closing parenthesis.\n");
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+/* 
+ * Reports an error for an invalid character encountered in the expression.
+ */
+void report_invalid_character(char c) {
+    fprintf(stderr, "Error: Invalid character '%c' in expression.\n", c);
+}
+
+/* 
+ * Reports an error for unmatched opening parentheses.
+ */
+void report_unmatched_parenthesis(void) {
+    fprintf(stderr, "Error: Unmatched opening parenthesis.\n");
+}
+
+/* 
+ * Skips whitespace characters in the expression string.
+ */
+void skip_whitespace(const char **expr) {
     while (isspace(**expr)) {
         (*expr)++;
     }
 }
 
-Node* parse_number(const char** expr) {
+/* 
+ * Parses a numeric value (hexadecimal, octal, or decimal) from the expression.
+ */
+Node* parse_number(const char **expr) {
     skip_whitespace(expr);
 
-    /* Check if number is hexadecimal (starts with 0x or 0X) */
     if (**expr == '0' && ((*expr)[1] == 'x' || (*expr)[1] == 'X')) {
         char* end;
         long int value = strtol(*expr, &end, 16);
         *expr = end;
         return create_const_node((double)value);
     }
-    
-    /* Check if number is octal (starts with 0 followed by a digit, e.g., 010) */
+
     if (**expr == '0' && isdigit((*expr)[1])) {
         char* end;
         long int value = strtol(*expr, &end, 8);
         *expr = end;
         return create_const_node((double)value);
     }
-    
-    /* Parse as decimal integer or floating-point number (including scientific notation) */
+
     char* end;
     double value = strtod(*expr, &end);
     *expr = end;
     return create_const_node(value);
 }
 
-
-Node* parse_function(const char** expr) {
+/* 
+ * Parses a mathematical function and its arguments from the expression.
+ */
+Node* parse_function(const char **expr) {
     skip_whitespace(expr);
     char func[5] = {0};
     int i = 0;
@@ -154,7 +206,10 @@ Node* parse_function(const char** expr) {
     return NULL;
 }
 
-Node* parse_factor(const char** expr) {
+/* 
+ * Parses a factor: a number, variable, function, or expression in parentheses.
+ */
+Node* parse_factor(const char **expr) {
     skip_whitespace(expr);
 
     if (**expr == '-') {
@@ -186,7 +241,10 @@ Node* parse_factor(const char** expr) {
     return NULL;
 }
 
-Node* parse_term(const char** expr) {
+/* 
+ * Parses terms involving multiplication, division, or exponentiation.
+ */
+Node* parse_term(const char **expr) {
     skip_whitespace(expr);
     Node* node = parse_factor(expr);
 
@@ -199,7 +257,10 @@ Node* parse_term(const char** expr) {
     return node;
 }
 
-Node* parse_expression(const char** expr) {
+/* 
+ * Parses the full expression, handling addition and subtraction.
+ */
+Node* parse_expression(const char **expr) {
     skip_whitespace(expr);
     Node* node = parse_term(expr);
 

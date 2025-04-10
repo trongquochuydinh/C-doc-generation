@@ -1,0 +1,24 @@
+CC=gcc
+CFLAGS= -ansi
+SRCDIR=src
+BUILDDIR=build
+TARGET=File_System
+
+SRC=$(wildcard $(SRCDIR)/*.c)
+OBJ=$(SRC:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	@if not exist $(BUILDDIR) mkdir $(BUILDDIR)
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+	@if not exist $(BUILDDIR) mkdir $(BUILDDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	if exist $(BUILDDIR) rmdir /s /q $(BUILDDIR)
+	if exist $(TARGET).exe del $(TARGET).exe
+
+.PHONY: all clean

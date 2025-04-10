@@ -2,7 +2,10 @@
 #include <ctype.h>
 #include <string.h>
 
-/* Function to remove whitespace from a string */
+/* 
+ * Removes all whitespace characters from the source string and 
+ * copies the result into the destination string.
+ */
 void remove_whitespace(char* dest, const char* src) {
     while (*src != '\0') {
         if (!isspace((unsigned char)*src)) {
@@ -13,13 +16,21 @@ void remove_whitespace(char* dest, const char* src) {
     *dest = '\0';
 }
 
+/* 
+ * Creates a Not-a-Number (NaN) value.
+ * The function directly manipulates the binary representation of a double to create NaN.
+ */
 double create_nan() {
-    unsigned long nan_bits = 0x7FF8000000000000;
+    unsigned long nan_bits = 0x7FF8000000000000; /* IEEE 754 representation for NaN */
     double nan_value;
     memcpy(&nan_value, &nan_bits, sizeof(nan_value));
     return nan_value;
 }
 
+/* 
+ * Checks whether the provided double value is a NaN (Not-a-Number).
+ * It inspects the binary representation to determine if the value is NaN.
+ */
 int is_nan(double x) {
     unsigned long bits;
     memcpy(&bits, &x, sizeof(bits));
