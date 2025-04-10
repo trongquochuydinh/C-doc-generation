@@ -1,1 +1,73 @@
-Program, který vyhledá hlavičky funkcí a jejich komentáře. Následně vytvoří soubor v Latexu.
+# C-doc-generation
+
+**C-doc-generation** je nástroj napsaný v jazyce C, který automaticky vyhledává hlavičky funkcí a jejich komentáře ve zdrojových souborech. Na základě těchto informací generuje dokumentaci ve formátu LaTeX.
+
+## Funkce
+
+- Automatická extrakce hlaviček funkcí a komentářů ze zdrojových souborů.
+- Generování LaTeX dokumentu, který lze přeložit do PDF.
+- Podpora komentářů ve stylu `/** ... */` pro dokumentaci funkcí.
+
+## Požadavky
+
+- Kompilátor jazyka C (např. `gcc`)
+- [LaTeX](https://www.latex-project.org/) – např. `pdflatex` pro překlad `.tex` souboru do PDF
+
+## Instalace
+
+```bash
+git clone https://github.com/trongquochuydinh/C-doc-generation.git
+cd C-doc-generation
+make
+```
+
+## Použití
+
+```bash
+./graph.exe [vstupní_soubor.c]
+```
+
+Program vytvoří soubor `doc.tex`, který obsahuje dokumentaci extrahovanou ze vstupního `.c` souboru.
+
+Pro překlad do PDF použijte:
+
+```bash
+pdflatex doc.tex
+```
+
+## Příklad
+
+Pokud máte soubor `example.c`:
+
+```c
+#include <stdio.h>
+
+/**
+ * Funkce pro sečtení dvou čísel.
+ *
+ * @param a První číslo.
+ * @param b Druhé číslo.
+ * @return Součet čísel a a b.
+ */
+int secti(int a, int b) {
+    return a + b;
+}
+```
+
+Spuštění:
+
+```bash
+./graph.exe example.c
+pdflatex doc.tex
+```
+
+Výsledkem bude `doc.pdf` obsahující přehledně vygenerovanou dokumentaci.
+
+## Poznámky
+
+- Komentáře funkcí by měly být ve formátu `/** ... */` a bezprostředně předcházet dané funkci.
+- Program pracuje se základní strukturou funkcí a není určen pro složitější projekty s více soubory nebo předspracovaným kódem.
+
+## Autor
+
+GitHub: [trongquochuydinh](https://github.com/trongquochuydinh)
