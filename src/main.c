@@ -96,16 +96,3 @@ int main(int argc, char *argv[]) {
     if (func) free(func); 
     return EXIT_SUCCESS;
 }
-
-
-
-/*
-    TODO:
-        1) Add comments to header files for tools like Doxygen
-        2) Apply single responsibility principle
-        3) Check for unified coding style
-        4) Comment more often?
-        5) Add param checking for program and functions if needed
-        6) Make sure that the program works for Windows and Linux AT LEAST
-        7) "abs()" is not recognised
-*/
