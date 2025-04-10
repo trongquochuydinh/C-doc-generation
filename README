@@ -1,19 +1,28 @@
-# C-doc-generation
+# 📘 C-doc-generation
 
-**C-doc-generation** je nástroj napsaný v jazyce C, který automaticky vyhledává hlavičky funkcí a jejich komentáře ve zdrojových souborech. Na základě těchto informací generuje dokumentaci ve formátu LaTeX.
+**C-doc-generation** je jednoduchý nástroj v jazyce **C**, který analyzuje zdrojové soubory, vyhledává hlavičky funkcí a jejich komentáře, a následně z těchto informací generuje dokumentaci ve formátu **LaTeX**.
 
-## Funkce
+---
 
-- Automatická extrakce hlaviček funkcí a komentářů ze zdrojových souborů.
-- Generování LaTeX dokumentu, který lze přeložit do PDF.
-- Podpora komentářů ve stylu `/** ... */` pro dokumentaci funkcí.
+## 🧩 Hlavní funkce
 
-## Požadavky
+- 🔍 Automatická detekce hlaviček funkcí a komentářů (`/** ... */`)
+- 📝 Generování `.tex` souboru s dokumentací
+- 📄 Možnost převodu do PDF pomocí `pdflatex`
 
-- Kompilátor jazyka C (např. `gcc`)
-- [LaTeX](https://www.latex-project.org/) – např. `pdflatex` pro překlad `.tex` souboru do PDF
+---
 
-## Instalace
+## 📦 Požadavky
+
+| Nástroj     | Popis                              |
+|-------------|-------------------------------------|
+| `gcc`       | Kompilátor jazyka C                |
+| `make`      | Pro sestavení projektu             |
+| `pdflatex`  | Pro kompilaci `.tex` do `.pdf`     |
+
+---
+
+## ⚙️ Instalace
 
 ```bash
 git clone https://github.com/trongquochuydinh/C-doc-generation.git
@@ -21,23 +30,25 @@ cd C-doc-generation
 make
 ```
 
-## Použití
+---
+
+## 🚀 Použití
 
 ```bash
 ./graph.exe [vstupní_soubor.c]
 ```
 
-Program vytvoří soubor `doc.tex`, který obsahuje dokumentaci extrahovanou ze vstupního `.c` souboru.
-
-Pro překlad do PDF použijte:
+📂 Program vygeneruje soubor `doc.tex` s dokumentací. Ten lze dále převést do PDF:
 
 ```bash
 pdflatex doc.tex
 ```
 
-## Příklad
+---
 
-Pokud máte soubor `example.c`:
+## 🧪 Příklad
+
+Mějme soubor `example.c`:
 
 ```c
 #include <stdio.h>
@@ -53,21 +64,18 @@ int secti(int a, int b) {
     return a + b;
 }
 ```
+---
 
-Spuštění:
+## 📝 Poznámky
 
-```bash
-./graph.exe example.c
-pdflatex doc.tex
-```
+- Komentáře musí být psané ve formátu `/** ... */` a umístěné **přímo nad hlavičkou funkce**.
+- Program neprochází celé projekty, funguje nad jednotlivými `.c` soubory.
+- Výsledný `.tex` soubor je možné dále upravit podle potřeby.
 
-Výsledkem bude `doc.pdf` obsahující přehledně vygenerovanou dokumentaci.
+---
 
-## Poznámky
+## 👤 Autor
 
-- Komentáře funkcí by měly být ve formátu `/** ... */` a bezprostředně předcházet dané funkci.
-- Program pracuje se základní strukturou funkcí a není určen pro složitější projekty s více soubory nebo předspracovaným kódem.
-
-## Autor
-
-GitHub: [trongquochuydinh](https://github.com/trongquochuydinh)
+| Jméno | Odkaz |
+|-------|-------|
+| Trong Quoc Huy Dinh | [GitHub](https://github.com/trongquochuydinh) |
